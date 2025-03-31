@@ -11,25 +11,22 @@ def obtener_urls_productos(url_categoria):
     urls_productos = []
     driver = webdriver.Chrome()
 
-    for page in range(1, 41):  # Iterar sobre las páginas desde la 1 hasta la 40
+    for page in range(1, 41):  
         url = f"{url_categoria}?page={page}"
         print(f"Scraping la página: {url}")
         driver.get(url)
 
         try:
-            # Configuración local para cada página
             driver.execute_script("localStorage.setItem('Location', JSON.stringify(arguments[0]));", 
                                   {"description": "Montevideo y Ciudad de la Costa",
                                    "postalCode": "11800",
                                    "geoCoordinates": [-56.1672997, -34.8944046],
                                    "sellerId": "tatauymontevideo"})
 
-            # Esperar hasta que los enlaces de productos estén presentes
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-testid="product-link"]'))
             )
 
-            # Obtener los enlaces a los productos de la página actual
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             items = soup.find_all('a', class_='link-module--fs-link--5aae5', attrs={
                 'data-testid': 'product-link',
@@ -86,10 +83,10 @@ def scrape_producto(url_producto, driver):
 
 def guardar_datos(productos, filepath_base):
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    filepath = f"{filepath_base}_t_{fecha_actual}.csv"  # Formato actualizado para incluir '_t_'
+    filepath = f"{filepath_base}_t_{fecha_actual}.csv"  
     
     df = pd.DataFrame(productos)
-    df['fecha'] = fecha_actual  # Guarda la fecha en cada fila, si lo necesitas
+    df['fecha'] = fecha_actual  
     df.to_csv(filepath, mode='a', header=False, index=False)
 
 if __name__ == "__main__":
@@ -110,7 +107,6 @@ if __name__ == "__main__":
 
     todos_los_productos = []
 
-    # Configurar Selenium WebDriver
     driver = webdriver.Chrome()
 
     for categoria in categorias:
@@ -124,5 +120,5 @@ if __name__ == "__main__":
     driver.quit()
 
     print(f"Total de productos scrapeados: {len(todos_los_productos)}")
-    guardar_datos(todos_los_productos, '../data/precios_producto')  # Base del nombre de archivo ajustada
+    guardar_datos(todos_los_productos, '../data/precios_producto')  
 
